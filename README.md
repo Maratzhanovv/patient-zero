@@ -1,8 +1,8 @@
 # Assignment 4. Patient Zero
 
 Student ID: 252673  
-Name: **TO COMPLETE**  
-Group: **TO COMPLETE**
+Name: **Magzhan Assankhan**  
+Group: **SE-2512**
 
 ## Program output
 
