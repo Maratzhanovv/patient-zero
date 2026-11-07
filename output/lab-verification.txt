@@ -1,0 +1,2 @@
+Unmodified lab calculations: all 9 values agree; chosen people cover every edge; hit positions agree.
+[91,1213,6,8652,4,554,30,124,19]
