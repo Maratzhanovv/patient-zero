@@ -55,7 +55,43 @@ public class Marker {
      * Example: a = "ACGTAC", b = "TTACGT", k = 4: the words of a are ACGT, CGTA, GTAC; only ACGT is in b, so the answer is 1.
      */
     public static int sharedWords(String a, String b, int k) {
-        // TODO Mission 4
-        return -1;
+        if (k <= 0) throw new IllegalArgumentException("Window length must be positive");
+        if (a.length() < k || b.length() < k) return 0;
+        long power = 1;
+        for (int i = 1; i < k; i++) power = power * BASE % MOD;
+        Map<Long, List<Integer>> windows = new HashMap<>();
+        long hash = initialHash(b, k);
+        for (int i = 0; i <= b.length() - k; i++) {
+            windows.computeIfAbsent(hash, key -> new ArrayList<>()).add(i);
+            if (i + k < b.length()) hash = roll(hash, b.charAt(i), b.charAt(i + k), power);
+        }
+        int count = 0;
+        hash = initialHash(a, k);
+        for (int i = 0; i <= a.length() - k; i++) {
+            List<Integer> candidates = windows.get(hash);
+            if (candidates != null) {
+                for (int j : candidates) {
+                    int matched = 0;
+                    while (matched < k && a.charAt(i + matched) == b.charAt(j + matched)) matched++;
+                    if (matched == k) { count++; break; }
+                }
+            }
+            if (i + k < a.length()) hash = roll(hash, a.charAt(i), a.charAt(i + k), power);
+        }
+        return count;
+    }
+
+    private static final long BASE = 257, MOD = 1_000_000_007;
+
+    private static long initialHash(String s, int k) {
+        long hash = 0;
+        for (int i = 0; i < k; i++) hash = (hash * BASE + s.charAt(i)) % MOD;
+        return hash;
+    }
+
+    private static long roll(long hash, char oldLetter, char newLetter, long power) {
+        // Normalize after subtracting the contribution of the outgoing letter.
+        hash = (hash - oldLetter * power % MOD + MOD) % MOD;
+        return (hash * BASE + newLetter) % MOD;
     }
 }
