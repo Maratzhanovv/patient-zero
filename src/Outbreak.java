@@ -17,8 +17,12 @@ public class Outbreak {
      * Main calls this twice: with all costs equal to 1 (the line "Tests needed") and with the real costs ("Cheapest testing").
      */
     public static boolean[] cheapestTests(int n, int[][] nb, int[] cost) {
-        // TODO Mission 5a
-        return new boolean[n];
+        boolean[] tested = new boolean[n];
+        if (n == 0) return tested;
+        long[][] dp = new long[n][2];
+        cover(0, -1, nb, cost, dp);
+        rebuild(0, -1, false, nb, dp, tested);
+        return tested;
     }
 
     /**
@@ -27,7 +31,38 @@ public class Outbreak {
      * Example: a line 0-1-2-3 has chain 3; a star with centre 0 and leaves 1, 2, 3 has chain 2.
      */
     public static int longestChain(int n, int[][] nb) {
-        // TODO Mission 5b
-        return -1;
+        int[] best = {0};
+        if (n > 0) depth(0, -1, nb, best);
+        return best[0];
+    }
+
+    private static void cover(int v, int parent, int[][] nb, int[] cost, long[][] dp) {
+        dp[v][1] = cost[v];
+        for (int child : nb[v]) {
+            if (child == parent) continue;
+            cover(child, v, nb, cost, dp);
+            dp[v][0] += dp[child][1]; // An untested parent forces every child to be tested.
+            dp[v][1] += Math.min(dp[child][0], dp[child][1]);
+        }
+    }
+
+    private static void rebuild(int v, int parent, boolean forced, int[][] nb,
+                                long[][] dp, boolean[] tested) {
+        tested[v] = forced || dp[v][1] < dp[v][0];
+        for (int child : nb[v]) {
+            if (child != parent) rebuild(child, v, !tested[v], nb, dp, tested);
+        }
+    }
+
+    private static int depth(int v, int parent, int[][] nb, int[] best) {
+        int first = 0, second = 0;
+        for (int child : nb[v]) {
+            if (child == parent) continue;
+            int branch = 1 + depth(child, v, nb, best);
+            if (branch > first) { second = first; first = branch; }
+            else if (branch > second) second = branch;
+        }
+        best[0] = Math.max(best[0], first + second);
+        return first;
     }
 }
